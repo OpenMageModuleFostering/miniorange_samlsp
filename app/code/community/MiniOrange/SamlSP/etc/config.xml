@@ -2,7 +2,7 @@
 <config>
     <modules>
         <MiniOrange_SamlSP>
-            <version>1.2.1</version>    <!-- Version number of your module -->
+            <version>1.2.0</version>    <!-- Version number of your module -->
         </MiniOrange_SamlSP>
     </modules>
 	

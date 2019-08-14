@@ -259,26 +259,24 @@ class MiniOrange_SamlSP_Model_Observer
 			$websiteId = Mage::app()->getWebsite()->getId();
 			$store = Mage::app()->getStore();
 			
-			$setDefaultRole = array();
-
 			if(!is_null($defaultRole)) {
 				foreach($roles as $role):
 					$admin = $defaultRole==$role->getRoleName()? true : false;
-					if($admin){ array_push($setDefaultRole, $role->getRoleId() ); break; }
+					if($admin){ $setDefaultRole = $role->getRoleId(); break; }
 				endforeach; 
 
 				if(!$admin){
 					foreach($groups as $group):
 						$customer = $defaultRole==$group->getCustomerGroupCode()? true : false;
-						if($customer){ array_push($setDefaultRole, $group->getCustomerGroupId() ); break; } 
+						if($customer){ $setDefaultRole = $group->getCustomerGroupId(); break; } 
 					endforeach;
 				}
 				
 				if($admin){						
-					$user = $this->createAdminUser($userName,$firstName,$lastName,$email,$random_password,$setDefaultRole);
+					$user = $this->createAdminUser($userName,$firstName,$lastName,$email,$setDefaultRole);
 					$user_id = $user->getId();
 				}else{
-					$user = $this->createCustomer($userName,$firstName,$lastName,$email,$random_password,$setDefaultRole);
+					$user = $this->createCustomer($userName,$firstName,$lastName,$email,$setDefaultRole);
 					$user_id = $user->getUserId();
 				}
 				
