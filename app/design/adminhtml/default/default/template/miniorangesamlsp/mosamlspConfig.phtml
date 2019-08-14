@@ -579,7 +579,7 @@
 							<div class="mo_samlsp_thumbnail mo_samlsp_pricing_free_tab">
 								<div style="height:16%;">
 									<h2 class="mo_samlsp_pricing_header">Free - Forever</h2>
-									<h3>[ You are automatically on this plan ]</h3>
+									<h3>( You are automatically on this plan )</h3>
 								</div>
 								<hr>
 								<div style="height:8%;padding:2% 0;">
@@ -604,12 +604,12 @@
 							<div class="mo_samlsp_thumbnail mo_samlsp_pricing_free_tab">
 								<div style="height:16%;">
 									<h2 class="mo_samlsp_pricing_header">Do It Yourself</h2>
-										<h3>[ Use the Contact Form on the right ]</h3>
+										<input type="submit" value="Upgrade Now" class="button button-primary button-large" onclick="mosp_upgradeform('magento_saml_sso_basic_plan')">
 								</div>
 								<hr>
 								<div style="height:8%;padding:2% 0;">
 									<p class="mo_samlsp_pricing_text">
-											$149 - One Time Payment
+											$249 - One Time Payment
 									</p>
 								</div>
 								<hr>
@@ -636,12 +636,12 @@
 							<div class="mo_samlsp_thumbnail mo_samlsp_pricing_paid_tab">
 								<div style="height:16%;">
 									<h2 class="mo_samlsp_pricing_header">Premium</h2>
-									<h3>[ Use the Contact Form on the right ]</h3>
+									<input type="submit" value="Upgrade Now" class="button button-primary button-large" onclick="mosp_upgradeform('magento_saml_sso_premium_plan')">
 								</div>
 								<hr>
 								<div style="height:8%;padding:2% 0;">
 									<p class="mo_samlsp_pricing_text">
-											$149 + One Time Setup Fees<br>
+											$249 + One Time Setup Fees<br>
 											($45 per hour)
 									</p>
 								</div>
@@ -671,7 +671,18 @@
 					</tbody>
 				</table>
 				<div style="margin:2% 0 2% 2%;">
-					
+					<form style="display:none;" id="mocf_loginform" action="<?php echo $this->getHostName().'/moas/login'; ?>" 
+						target="_blank" method="post">
+						<input type="email" name="username" value="<?php echo  $this->getConfig('email'); ?>" />
+						<input type="text" name="redirectUrl" value="<?php echo $this->getHostName().'/moas/initializepayment'; ?>" />
+						<input type="text" name="requestOrigin" id="requestOrigin"  />
+					</form>
+					<script>
+						function mosp_upgradeform(planType){
+							jQuery('#requestOrigin').val(planType);
+							jQuery('#mocf_loginform').submit();
+						}
+					</script>
 				</div>		
 			</div>
 			

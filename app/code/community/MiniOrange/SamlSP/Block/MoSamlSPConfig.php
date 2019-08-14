@@ -1,5 +1,6 @@
 <?php
 class MiniOrange_SamlSP_Block_MoSamlSPConfig extends Mage_Core_Block_Template{
+	private $hostname = 'https://auth.miniorange.com';
 	
 	public function isEnabled(){
 		$customer = Mage::helper('MiniOrange_SamlSP');
@@ -21,6 +22,10 @@ class MiniOrange_SamlSP_Block_MoSamlSPConfig extends Mage_Core_Block_Template{
 	
 	function getPluginFileURL($value){
 		return Mage::getModuleDir('', 'MiniOrange_SamlSP').DS.'Helper'.DS.$value;
+	}
+	
+	function getHostName(){
+		return $this->hostname;
 	}
 	
 	function getSamlLoginUrl(){
