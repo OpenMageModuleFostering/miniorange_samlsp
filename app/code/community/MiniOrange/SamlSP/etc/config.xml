@@ -1,0 +1,126 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <MiniOrange_SamlSP>
+            <version>1.0.0</version>    <!-- Version number of your module -->
+        </MiniOrange_SamlSP>
+    </modules>
+	
+	<admin>
+        <routers>
+            <MiniOrange_SamlSP>
+                <use>admin</use>
+                <args>
+                    <module>MiniOrange_SamlSP</module>
+                    <frontName>samlsp</frontName>
+                </args>
+            </MiniOrange_SamlSP>
+        </routers>
+    </admin>
+	
+	<adminhtml>
+	   <layout>
+		  <updates>
+			  <miniorange_samlsp_admin_layout>
+				  <file>miniorangesamlsp.xml</file>
+			   </miniorange_samlsp_admin_layout>
+		  </updates>
+	   </layout>
+	   
+	   <menu>
+	    <miniOrange translate="title" module="MiniOrange_SamlSP">
+            <title>miniOrange</title>
+            <sort_order>81</sort_order>
+            <children>
+                <mo_samlsp translate="title" module="MiniOrange_SamlSP">
+					   <title>SAML Service Provider</title>
+					   <sort_order>1</sort_order>
+					   <action>samlsp/adminhtml_index</action>
+				</mo_samlsp>
+            </children>
+        </miniOrange>
+		</menu>	
+	</adminhtml>
+	
+	 <frontend>
+		<layout>
+		   <updates>
+				<miniorange_samlsp_customer_layout>
+					 <file>miniorangesamlsp.xml</file>
+				 </miniorange_samlsp_customer_layout>
+			</updates>
+		</layout>
+    </frontend>
+	
+	 <global>
+		<!-- Definition of our blocks -->
+        <blocks>
+            <MiniOrange_SamlSP>  
+                <class>MiniOrange_SamlSP_Block</class>
+            </MiniOrange_SamlSP>
+        </blocks>
+		<!-- Declaration for the helper class-->
+		<helpers>
+			<MiniOrange_SamlSP>
+				<class>MiniOrange_SamlSP_Helper</class>
+			</MiniOrange_SamlSP>
+		</helpers>
+		<!-- Declaration for the model class-->
+		<models>
+            <MiniOrange_SamlSP>
+                <class>MiniOrange_SamlSP_Model</class>
+            </MiniOrange_SamlSP>
+        </models>		
+		<events>				
+			<controller_action_predispatch>
+                <observers>
+                    <miniorange_samlsp_login>
+                        <class>MiniOrange_SamlSP/Observer</class>
+                        <method>controllerActionPredispatch</method>
+                    </miniorange_samlsp_login>
+                </observers>
+            </controller_action_predispatch>
+			<controller_action_predispatch_adminhtml_index_logout>
+				<observers>
+                    <miniorange_samlsp_pre_logout>
+                        <class>MiniOrange_SamlSP/Observer</class>
+                        <method>mo_get_admin_before_logout</method>
+                    </miniorange_samlsp_pre_logout>
+                </observers>
+			</controller_action_predispatch_adminhtml_index_logout>
+			<controller_action_postdispatch_adminhtml_index_logout>
+				<observers>
+                    <miniorange_samlsp_post_logout>
+                        <class>MiniOrange_SamlSP/Observer</class>
+                        <method>mo_saml_logout</method>
+                    </miniorange_samlsp_post_logout>
+                </observers>
+			</controller_action_postdispatch_adminhtml_index_logout>
+			<controller_action_predispatch_customer_account_logout>
+				<observers>
+                    <miniorange_samlsp_pre_logout>
+                        <class>MiniOrange_SamlSP/Observer</class>
+                        <method>mo_get_user_before_logout</method>
+                    </miniorange_samlsp_pre_logout>
+                </observers>
+			</controller_action_predispatch_customer_account_logout>
+			<controller_action_postdispatch_customer_account_logout>
+				<observers>
+                    <miniorange_samlsp_customer_logout>
+                        <class>MiniOrange_SamlSP/Observer</class>
+                        <method>mo_saml_logout</method>
+                    </miniorange_samlsp_customer_logout>
+                </observers>
+			</controller_action_postdispatch_customer_account_logout>
+		</events>
+		<!-- Defining our resources -->
+		 <resources>
+            <MiniOrange_SamlSP_setup>
+                <setup>
+                    <module>MiniOrange_SamlSP</module>
+                </setup>
+            </MiniOrange_SamlSP_setup>
+        </resources>
+	</global>
+   
+</config>

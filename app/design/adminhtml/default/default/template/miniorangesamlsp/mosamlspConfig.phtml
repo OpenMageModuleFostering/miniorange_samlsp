@@ -1,0 +1,794 @@
+	<html>
+	<head>		
+		<link href="https://auth.miniorange.com/moas/css/telephone.css" rel="stylesheet">
+		<link rel="stylesheet" type="text/css" href="<?php echo Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_SKIN).'adminhtml/default/default/miniorangesamlsp/css/adminSettings.css'; ?>"></link>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+		<script src="https://auth.miniorange.com/moas/js/intlTelInput.min.js"></script>
+		<script>
+			var $m = jQuery.noConflict();
+			var testURL = "<?php echo $this->mo_samlSP_get_test_url(); ?>";
+			$m(document).ready(function() {
+				$email = "<?php echo $this->getConfig('email'); ?>";
+				<?php $def= $this->isEnabled() ? 'settings' : 'account_setup'; ?>
+				$activeTab = "<?php echo isset($_GET['q']) ? $_GET['q']: $def;  ?>";
+			});	
+		</script>
+	</head>		
+	<body>
+		<div class="heading"> <h3>MINIORANGE SAML 2.0 SAML EXTENSION CONFIGURATION</h3></div>
+		<div class="mosp_container">
+		<div class="container">
+		  <ul class="navbar navbar-tabs">
+			<?php if($this->isEnabled()){?>
+			<!-- <li id="user_profile"><a data-method="#userprofile">User Profile</a></li> -->
+			<?php }else{?>
+			<li id="account_setup"><a data-method="#accountsetup">Account Setup</a></li>
+			<?php }?>
+			<li id="identity-provider"><a data-method="#identityprovider">Identity Provider</a></li>
+			<li id="service-provider"><a data-method="#serviceprovider">Service Provider</a></li>
+			<?php if($this->isEnabled()){?>
+				<li id="settings"><a data-method="#samlsettings">Sign in Settings</a></li>
+			<?php }?>
+			<li id="attribute-role-mapping"><a data-method="#attrmapping">Attribute/Role Mapping</a></li>
+			<li id="help_trouble"><a data-method="#helptrouble">FAQ</a></li>
+			<li id="pricing-tab"><a data-method="#pricing">Licencing Plans</a></li>
+		  </ul>
+		<div class="container-page">
+			<div id="messages">
+				<ul class="mini-messages">
+				<?php if(Mage::getSingleton('core/session')->getErrorMessage()){?>
+				<li class="error-msg"><ul><li><span><?php echo Mage::getSingleton('core/session')->getErrorMessage(); ?></span><a id="error-cancel" href="#">&times;</a></li></ul></li>
+				<?php }?>
+				<?php if(Mage::getSingleton('core/session')->getSuccessMessage()){?>
+				<li class="success-msg"><ul><li><span><?php echo Mage::getSingleton('core/session')->getSuccessMessage(); ?></span><a id="success-cancel" href="#">&times;</a></li></ul></li>
+				<?php }?>
+				</ul>						
+			</div>
+			<!-- USER PROFILE TAB -->
+			<?php if(!$this->isEnabled()){
+					$user = Mage::getSingleton('admin/session'); 
+					$userEmail = $user->getUser()->getEmail();
+					$status= $this->getConfig('status');
+			?>			
+
+			<!-- ACCOUNT SETUP TAB -->
+			<div class="page" id="accountsetup">
+			<div class="mosp_table_layout">
+				<?php if($status==''){?>
+				<form name="f" method="post" action="<?php echo $this->getadminurl('*/*/registerNewUser') ?>" id="register-form">
+					<input type="hidden" name="form_key" value="<?php echo Mage::getSingleton('core/session')->getFormKey(); ?>" />
+					<div class="mo_idp_table_layout">
+						<h3>REGISTER WITH MINIORANGE</h3><hr>
+						<p>
+							<div class="btn-link">[ Why do I need to register? ]</a></div>
+							<div hidden class="collapse">
+								In case you need help, we can help you with step by step instructions. We support all known IdPs - <b>ADFS, Okta, Salesforce, Shibboleth, SimpleSAMLphp, OpenAM, Centrify, Ping, RSA, IBM, Oracle, OneLogin, Bitium, JBoss Keycloak etc</b>.
+							</div>
+						</p>
+						<table class="mosp_table_layout">
+							<tr>
+								<td><b><font color="#FF0000">*</font>Email:</b></td>
+								<td><input class="mosp_table_textbox" type="email" name="email"
+									required placeholder="person@example.com"
+									value="<?php echo $userEmail ;?>" /></td>
+							</tr>
+							<tr>
+								<td><b><font color="#FF0000">*</font>Password:</b></td>
+								<td><input class="mosp_table_textbox" required type="password"
+									name="password" placeholder="Choose your password (Min. length 6)" /></td>
+							</tr>
+							<tr>
+								<td><b><font color="#FF0000">*</font>Confirm Password:</b></td>
+								<td><input class="mosp_table_textbox" required type="password"
+									name="confirmPassword" placeholder="Confirm your password" /></td>
+							</tr>
+							<tr>
+								<td>&nbsp;</td>
+								<td><br /><input type="submit" name="submit" value="Register" style="width:100px;"
+									class="button button-primary button-large" /></td>
+							</tr>
+						</table>
+											
+					</div>
+				</form>
+				<?php }else	if(strcmp($status,'MO_OTP_EMAIL_VALIDATE')==0 || strcmp($status,'MO_OTP_PHONE_VALIDATE')==0 || strcmp($status,'MO_OTP_DELIVERED_FAILURE')==0){?>						
+					<h3>VERIFY YOUR EMAIL</h3><hr>
+						<form name="f" method="post" id="otp_form" action="<?php echo $this->getadminurl('*/*/validateNewUser') ?>">
+							<input type="hidden" name="form_key" value="<?php echo Mage::getSingleton('core/session')->getFormKey(); ?>" />
+							<table class="mosp_table_layout">
+								<tr>
+									<td><b><font color="#FF0000">*</font>Enter OTP:</b></td>
+									<td><input class="mosp_table_textbox" autofocus="true" type="text" name="otp_token" placeholder="ENTER OTP" pattern="{6,8}"/>
+									</td><td><a class="btn-link" onclick="document.getElementById('resend_otp_form').submit();">Resend OTP</a></td>
+								</tr>
+								<tr>
+									<td>&nbsp;</td>
+									<td>
+										<input type="submit" name="submit" value="Validate OTP" class="button button-primary button-large" />
+										<input type="submit" name="submit"  value="Back" class="button button-primary button-large" />
+									</td>
+								</tr>
+							</table>
+						</form>
+						<form name="f" id="resend_otp_form" method="post" action="<?php echo $this->getadminurl('*/*/resendOTP') ?>">
+							<input type="hidden" name="form_key" value="<?php echo Mage::getSingleton('core/session')->getFormKey(); ?>" />
+						</form>
+						<hr>
+						<div style="margin-left:2%;">
+							<h3>I did not recieve any email with OTP . What should I do ?</h3>
+							<div class="collapse" style="display:block;"> If you can't see the email from miniOrange in your mails, please check your <b>SPAM</b> folder. If you don't see an email even in the SPAM folder, verify your identity with our alternate method below.</div><br>
+							<b>Enter your valid phone number here and verify your identity using one time passcode sent to your phone.</b>
+						</div>
+						<form id="mo_saml_register_with_phone_form" method="post" action="<?php echo $this->getadminurl('*/*/sendOTPPhone') ?>">
+							<input type="hidden" name="form_key" value="<?php echo Mage::getSingleton('core/session')->getFormKey(); ?>" />
+							<table class="mosp_table_layout">
+								<tr>
+									<td><input class="mosp_table_textbox" type="tel" id="phone_contact"
+										pattern="[\+]\d{11,14}|[\+]\d{1,4}([\s]{0,1})(\d{0}|\d{9,10})" class="mo_saml_table_textbox" name="phone" 
+										title="Phone with country code eg. +1xxxxxxxxxx" required
+										placeholder="Phone with country code eg. +1xxxxxxxxxx"
+										value="" /></td>
+										<td><input type="submit" value="Send OTP" class="button button-primary button-large" /></td>
+								</tr>
+							</table>
+						</form>
+				<?php }else if($status=='MO_VERIFY_CUSTOMER'){?>
+					<form id="register_miniorange" name="f" method="post" action="<?php echo $this->getadminurl('*/*/existingUser') ?>">
+						<input type="hidden" name="form_key" value="<?php echo Mage::getSingleton('core/session')->getFormKey(); ?>" />
+						<div class="login_miniorange">
+							<div><h3>LOGIN WITH MINIORANGE</h3></div>	
+							<hr>
+							<div id="panel1">
+								<?php ?>
+								<div><b>Please Login with your miniOrange credentials</b></div><br />
+								<table class="table">
+									<tr>
+									<td><b><font color="#FF0000">*</font>Email:</b></td>
+									<td><input class="" type="email" name="loginemail"  id="loginemail" autofocus="true" required placeholder="person@example.com" style="width:400px;" value="<?php echo Mage::getSingleton('admin/session')->getEnteredEmail(); ?>"/></td>
+									</tr>
+									<tr>
+									<td><b><font color="#FF0000">*</font>Password:</b></td>
+									 <td><input class="" type="password" name="loginpassword" style="width:400px;" placeholder="Enter your password" pattern="[a-zA-Z0-9!@#$%^&*]{6,24}"/></td>
+									</tr>
+								</table>
+								<br>
+									<div class="button-align"><input type="submit" name="submit" value="Submit" class="" /></div>
+									<div class="button-align"><input type="submit" name="submit" value="Forgot Password?" class="" /></div>
+									<div class="button-align"><input type="submit" name="submit" value="Go Back" class="" /></div>
+							</div>
+						</div>
+					</form>
+				<?php }?>
+			</div>
+			
+			</div>
+			<?php }?>
+			
+			<!-- Identity Provider SETUP -->
+			<div class="page" id="identityprovider">
+				<h3>CONFIGURE IDENTITY PROVIDER</h3><hr>
+				<div id="idp-settings" class="mosp_table_layout">
+					<h3><b>STEP 1:</b></h3><h4>You will need the following information to configure your IdP. Copy it and keep it handy:</h4>
+					<div style="padding:0 6%;">
+						<table class="data center">
+							<tr>
+								<td><b>SP-EntityID / Issuer</b></td>
+								<td><?php echo $this->getIssuerUrl(); ?></td>
+							</tr>
+							<tr>
+								<td><b>ACS (AssertionConsumerService) URL</b></td>
+								<td><?php echo $this->getBaseUrl(); ?></td>
+							</tr>
+							<tr>
+								<td><b>Single Logout URL</b></td>
+								<td><?php echo $this->getBaseUrl(); ?></td>
+							</tr>
+							<tr>
+								<td><b>Audience URI</b></td>
+								<td><?php echo $this->getIssuerUrl(); ?></td>
+							</tr>
+							<tr>
+								<td><b>NameID format</b></td>
+								<td>urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress</td>
+							</tr>
+							<tr>
+								<td><b>Recipient URL</b></td>
+								<td><?php echo $this->getBaseUrl(); ?></td>
+							</tr>
+							<tr>
+								<td><b>Destination URL</b></td>
+								<td><?php echo $this->getBaseUrl(); ?></td>
+							</tr>
+							<tr>
+								<td><b>Default Relay State (Optional)</b></td>
+								<td><span style="color:red">*</span> Available in the <span class="premium btn-link">premium</span> version</td>
+							</tr>
+							<tr>
+								<td><b>Certificate (Optional)</b></td>
+								<td><span style="color:red">*</span> Available in the <span class="premium btn-link">premium</span> version</td>
+							</tr>
+						</table>
+					</div>
+					<br/>
+					<p style="text-align: center;font-size: 13pt;font-weight: bold;">OR</p>
+					<p>Provide this metadata URL to your Identity Provider:</p>
+					<code class="metadata"><b>Metadata URL is available in the <span class="premium btn-link">premium</span> version of the plugin.</b></code>
+					<br><br>
+					<p><h3><b>STEP 2:</b></h3>
+						With the help of information given in <b>Step 1</b>, configure your IdP. Then come back to <b>Step 3</b>. 
+						<div style="margin:1%;">
+							<div style="background-color:#CBCBCB;padding:5px;">We have step by step <b>do-it-yourself guides</b> available for all known IdPs like <b>ADFS, Centrify, Okta, OneLogin, OpenAM, Oracle Identity Manager, JBoss Keycloak, Salesforce, Shibboleth, SimpleSAML, WSO2</b> etc. <span class="premium btn-link">( Supported in premium version )</span></div>
+						</div>
+					</p>
+					<p>If you can't find your Idp in this list, write us the name of your Idp via support form on right.</p>
+					<p><b>For more help, checkout the <a href="<?php echo $this->getAdminURL('*/*/').'?q=help_trouble'?>">Help section</a>.</b></p>
+					<br><br>
+					<h3><b>STEP 3:</b></h3>
+					<b>Assuming that you are now done with Step 2, please note down the following information from your IdP admin screen and keep it handy to configure your Service provider.</b>
+					<div style="margin:2%;">
+						<ol>
+							<li>1. <b>X.509 certificate</b></li>
+							<li>2. <b>SAML Login URL (Single Sign On URL)</b></li>
+							<li>3. <b>IdP Entity ID (IdP Issuer)</b></li>
+							<li>4. <b>Is Response signed</b> by your IdP?</li>
+							<li>5. <b>Is Assertion signed</b> by your IdP?</li>
+							</li>
+						</ol>
+					</div>
+					<span class="btn-link" >[ Cannot find the above information? ]</span>
+					<div hidden class="collapse">
+					  <ol>
+						  <li>X.509 certificate is enclosed in <code>X509Certificate</code> tag in IdP-Metadata XML file. (parent tag: <code>KeyDescriptor use="signing"</code>)</li> 
+						  <li>SAML Login URL is enclosed in <code>SingleSignOnService</code> tag (Binding type: HTTP-Redirect) in IdP-Metadata XML file.</li>
+						  <li>EntityID is the value of the <code>entityID</code> attribute of <code>EntityDescriptor</code> tag in IdP-Metadata XML file. </li>
+					  </ol>
+					</div>
+					<br/><br/>
+					<input type="checkbox"  <?php if(!$this->isEnabled()) echo 'disabled'?> onchange="window.location='<?php echo $this->getAdminURL('*/*/').'?q=service-provider'?>'" /> Check this option if you have the above information. You will be redirected to configure the Service Provider. 
+				</div>
+				<br/>
+			</div>
+			
+			<!-- Service Provider Setup-->
+			<?php 
+				$saml_identity_name = !is_null($this->getConfig('identityName'))?$this->getConfig('identityName'):'';
+				$saml_login_url = !is_null($this->getConfig('loginUrl'))?$this->getConfig('loginUrl'):'';
+				$saml_issuer = !is_null($this->getConfig('samlIssuer'))?$this->getConfig('samlIssuer'):'';
+				$saml_x509_certificate = !is_null($this->getConfig('certificate'))?$this->getConfig('certificate'):'';
+				$saml_response_signed = !is_null($this->getConfig('responseSigned'))?$this->getConfig('responseSigned'):'';
+				if($saml_response_signed) {$saml_response_signed = 'checked'; }
+				$saml_assertion_signed = !is_null($this->getConfig('assertionSigned'))?$this->getConfig('assertionSigned'):'';
+				if($saml_assertion_signed) {$saml_assertion_signed = 'checked'; }
+			?>
+			<div class="page" id="serviceprovider">
+				<div class="mosp_table_layout">
+					<form name="f" method="post" action="<?php echo $this->getadminurl('*/*/saveSamlSettings') ?>">
+						<input type="hidden" name="form_key" value="<?php echo Mage::getSingleton('core/session')->getFormKey(); ?>" />	
+						<h3>CONFIGURE SERVICE PROVIDER</h3>
+						<hr>
+						Enter the information gathered from your Identity Provider
+						<table style="width:100%;">
+						<tr>
+							<td style="width:200px;"><strong>Identity Provider Name <span style="color:red;">*</span>:</strong></td>
+							<td><input type="text" name="saml_identity_name" placeholder="Identity Provider name like ADFS, SimpleSAML, Salesforce" style="width: 100%;" value="<?php echo $saml_identity_name;?>" required <?php if(!$this->isEnabled()) echo 'disabled'?> pattern="^\w*$" title="Only alphabets, numbers and underscore is allowed"/></td>
+						</tr>
+						<tr>
+							<td><strong>IdP Entity ID or Issuer <span style="color:red;">*</span>:</strong></td>
+							<td><input type="text" name="saml_issuer" placeholder="Identity Provider Entity ID or Issuer" style="width: 100%;" value="<?php echo $saml_issuer;?>" required <?php if(!$this->isEnabled()) echo 'disabled'?>/></td>
+						</tr>
+						<tr>
+							<td><strong>SAML Login URL <span style="color:red;">*</span>:</strong></td>
+							<td>
+							<div class="mo_premium_option_text" style="margin: 0.5% 7%;"><span style="color:red;">*</span> This is a premium feature. Check <span class="premium btn-link">Licensing Tab</span> to learn more.</div>
+							<div class="mo_premium_option" style="margin-bottom:0.5%"><input type="radio" disabled name="saml_login_binding_type" id="sso-http-redirect" value="HttpRedirect"/>
+								<label for="sso-http-redirect">Use HTTP-Redirect Binding for SSO</label>
+								<input style="margin-left:15px;" type="radio" disabled name="saml_login_binding_type" id="sso-http-post" value="HttpPost"/>
+								<label for="http-post">Use HTTP-POST Binding for SSO</label>
+							</div>
+							<input type="url" name="saml_login_url" placeholder="Single Sign On Service URL of your IdP" style="width: 100%;" value="<?php echo $saml_login_url;?>" required <?php if(!$this->isEnabled()) echo 'disabled'?>/></td>
+						</tr>
+						<tr>
+							<td>
+								<div class="mo_premium_option_text" style="margin:3.3% 24%"><span style="color:red;">*</span> This is a premium feature. Check <span class="premium btn-link">Licensing Tab</span> to learn more.</div>
+							</td>
+						</tr>
+						<tr class="mo_premium_option">
+							<td><strong>SAML Logout URL :</strong></td>
+							<td>
+								<input type="radio" name="saml_logout_binding_type" id="slo-http-redirect" disabled value="HttpRedirect"/>
+								<label for="slo-http-redirect">Use HTTP-Redirect Binding for SLO</label>
+								<input style="margin-left:15px;" type="radio" name="saml_logout_binding_type" id="slo-http-post" disabled value="HttpPost" />
+								<label for="slo-http-post">Use HTTP-POST Binding for SLO</label>
+								<br /><br />
+								<input type="url" name="saml_logout_url" placeholder="Single Logout Service URL of your IdP" style="width: 100%;" value="" disabled/>
+							</td>
+						</tr>
+						<tr>
+							<td><strong>X.509 Certificate <span style="color:red;">*</span>:</strong></td>
+							<td><textarea rows="4" cols="5" name="saml_x509_certificate" placeholder="Copy and Paste the content from the downloaded certificate or copy the content enclosed in 'X509Certificate' tag (has parent tag 'KeyDescriptor use=signing') in IdP-Metadata XML file" style="width: 580px;height:170px;" <?php if(!$this->isEnabled()) echo 'disabled'?>><?php echo $saml_x509_certificate;?></textarea></td>
+						</tr>
+						<tr>
+							<td>&nbsp;</td>
+							<td><b>NOTE:</b> Format of the certificate:<br/><b>-----BEGIN CERTIFICATE-----<br/>XXXXXXXXXXXXXXXXXXXXXXXXXXX<br/>-----END CERTIFICATE-----</b></i><br/>
+							</td>
+						</tr>
+						<tr>
+							<td><strong>Response Signed:</strong></td>
+							<td><input type="checkbox" name="saml_response_signed" value="Yes" <?php echo $saml_response_signed; ?> <?php if(!$this->isEnabled()) echo 'disabled'?>/>
+							Check if your IdP is signing the SAML Response. Leave checked by default.</td>
+						</tr>
+						<tr>
+							<td><strong>Assertion Signed:</strong></td>
+							<td><input type="checkbox" name="saml_assertion_signed" value="Yes" <?php echo $saml_assertion_signed; ?> <?php if(!$this->isEnabled()) echo 'disabled'?>/>
+							Check if the IdP is signing the SAML Assertion. Leave unchecked by default.</td>
+						</tr>
+						<tr>
+							<td>&nbsp;</td>
+							<td><br /><input type="submit" name="submit" style="width:100px;" value="Save" class="button button-primary button-large" <?php if(!$this->isEnabled()) echo 'disabled'?>/> &nbsp; 
+							<input type="button" name="test" title="You can only test your Configuration after saving your Service Provider Settings." onclick="showTestWindow();" <?php if(!$this->mo_saml_is_sp_configured()) echo 'disabled'?> value="Test configuration" style="width:150px"/>
+							</td>
+						</tr>
+					</table><br/>					
+					<input type="checkbox"  <?php if(!$this->mo_saml_is_sp_configured()) echo 'disabled title="Disabled. Configure your Service Provider"'?> onchange="window.location='<?php echo $this->getAdminURL('*/*/').'?q=settings'?>'" />Check this option if you have Configured and Tested your Service Provider settings.	
+					<br/><br/>
+					</form>
+				</div>
+			</div>
+			
+			<!-- Sign in Settings -->
+			<?php 
+				$force_authn = $this->getConfig('forceAuthn')?'checked':'';
+				$adminLink = $this->getConfig('adminLink')?'checked':'';
+				$customerLink = $this->getConfig('customerLink')?'checked':'';
+			?>
+			<div class="page" id="samlsettings">
+				<div class="mosp_table_layout">
+					<h3>SIGN IN OPTIONS</h3>
+					<hr>
+					<table>
+						<tr><td style="width:50%">
+							<form id="mo_saml_force_authentication_form" method="post" action="<?php echo $this->getadminurl('*/*/forceAuthenSettings')?>">
+								<input type="hidden" name="form_key" value="<?php echo Mage::getSingleton('core/session')->getFormKey(); ?>" />
+								<input type="checkbox" name="mo_saml_force_authentication" value="true" <?php if(!$this->mo_saml_is_sp_configured()) echo 'disabled title="Disabled. Configure your Service Provider"'?> <?php echo $force_authn; ?> onchange="document.getElementById('mo_saml_force_authentication_form').submit();"/> Force authentication with your IdP on each login attempt.
+								<span class="btn-link">[What does this mean?]</span>
+								<div hidden class="collapse">
+									It will force user to provide credentials on your IdP on each login attempt even if the user is already logged in to IdP. This option may require some additional setting in your IdP to force it depending on your Identity Provider.
+								</div>
+							</form>
+						</td></tr>
+						<tr><td>
+							Choose how you want users to log into your Magento website. You can choose any or all of the three options below.<br/><br/>
+							<h4><b>OPTION 1: Show Link on Default Login Page :</b></h4>
+							<div style="margin-left:17px;margin-top:2%;">
+								<form id="mo_saml_link_form" method="post" action="<?php echo $this->getadminurl('*/*/showLinkSettings')?>">
+									<input type="hidden" name="form_key" value="<?php echo Mage::getSingleton('core/session')->getFormKey(); ?>" />
+									<input type="checkbox" name="mo_saml_show_admin_link" id="mo_saml_show_admin_link" <?php if(!$this->mo_saml_is_sp_configured()) echo 'disabled title="Disabled. Configure your Service Provider"'?> <?php echo $adminLink; ?> value="true"> Show the Login Link on the default admin login page.
+									<br><br>
+									<input type="checkbox" name="mo_saml_show_customer_link" id="mo_saml_show_customer_link" <?php echo $customerLink; ?> <?php if(!$this->mo_saml_is_sp_configured()) echo 'disabled title="Disabled. Configure your Service Provider"'?> value="true">  Show the Login Link on the default customer login page.
+									<br><br>
+									<input type="button" name="link_setup" title="You can only make changes if you have configured your SP" onclick="document.getElementById('mo_saml_link_form').submit();" <?php if(!$this->mo_saml_is_sp_configured()) echo 'disabled'?> value="Save" style="width:150px"/>
+								</form>
+							</div>
+						</td></tr>
+						<tr><td>
+							<h4><b>OPTION 2: Auto Redirect User:</b></h4>
+							<div class="mo_premium_option_text" style="margin: 4% 17%;"><span style="color:red;">*</span> This is a premium feature. Check <span class="premium btn-link">Licensing Tab</span> to learn more.</div>
+							<div class="mo_premium_option">
+							<div style="margin-left:17px;margin-top:2%;">
+								<form id="mo_saml_enable_redirect_form" method="post" action="">	
+									<input type="checkbox" name="mo_saml_enable_login_redirect" value="true" disabled onchange="document.getElementById('mo_saml_enable_redirect_form').submit();"/> Check this option if you want to <b>auto redirect the user to IdP</b>.
+									<span class="btn-link">[What does this mean?]</span>
+									<div hidden class="collapse">
+										Users visiting any of the following URLs will get redirected to your configured IdP for authentication: <code><b><?php echo $this->getAdminLoginUrl(); ?></b></code> or <code><b><?php echo $this->getCustomerLoginUrl(); ?></b></code>
+									</div>
+								</form>
+								<br><br>
+								<form id="mo_saml_allow_wp_signin_form" method="post" action="">	
+									<p><input type="checkbox" name="mo_saml_allow_wp_signin" disabled ="true"
+										onchange="document.getElementById('mo_saml_allow_wp_signin_form').submit();"/> Checking this option creates a backdoor to login to your Website using Magento credentials incase you get locked out of your IdP.
+										<br>
+										<i style="margin-left:4.5%;">(Note down these URLS: <code><b><?php echo $this->getAdminLoginUrl() ?>?saml_sso=false</b></code> and</i>
+										<i  style="margin-left:4.5%;"><code><b><?php echo $this->getCustomerLoginUrl() ?>?saml_sso=false</b></code></i> )
+									</p>
+								</form>
+							</div>
+							</div>
+						</td></tr>
+						<tr><td>
+							<h4><b>OPTION 3: Use a Shortcode</b></h4>
+							<div class="mo_premium_option_text" style="margin: 2% 17%;"><span style="color:red;">*</span> This is a premium feature. Check <span class="premium btn-link">Licensing Tab</span> to learn more.</div>
+							<div class="mo_premium_option">
+							<div style="margin-left:17px;margin-top:2%;">
+								<input type="checkbox" name="mo_saml_add_shortcode" id="mo_saml_add_shortcode" disabled value="true"> Check this option if you want to add a shortcode to your page.
+								<div id="mo_saml_add_shortcode_steps" hidden class="collapse">
+									Place the following piece of code wherever you need to show the IDP login link:
+									<br>
+									<div class="collapse" style="display:block">
+										<code><span style="color:red">*</span> Available in the <span class="premium btn-link">premium</span> version</code>
+									</div>
+								</div>
+							</div><br>
+							</div>
+							<div style="margin-top:1%;" class="center">
+								<input type="button" onclick="window.location.href='<?php echo $this->getLogoutUrl();?>'" <?php if(!$this->mo_saml_is_sp_configured()) echo 'disabled title="Disabled. Configure your Service Provider"'?> class="button button-primary button-large" value="Log Out and Test"></input>
+							</div>
+						</td></tr>
+					</table>
+					<h3>Your Profile</h3>
+					<hr>
+					<p>Thanks for upgrading to premium plugin.</p>
+					<table class="data center">
+						<tr>
+							<td><b>miniOrange Account Email</b></td>
+							<td><?php echo $this->getConfig('email'); ?></td>
+						</tr>
+						<tr>
+							<td><b>Customer ID</b></td>
+							<td><?php echo $this->getConfig('customerKey'); ?></td>
+						</tr>
+					</table>
+				</div><br/><br/>
+			</div>
+			
+			<!-- Attribute/Role Mapping Setup -->
+			<?php 
+				//Attribute mapping
+				$saml_am_first_name = !is_null($this->getConfig('amFirstName'))?$this->getConfig('amFirstName'):'';
+				$saml_am_last_name = !is_null($this->getConfig('amLastName'))?$this->getConfig('amLastName'):'';
+				$saml_am_account_matcher = !is_null($this->getConfig('amAccountMatcher'))?$this->getConfig('amAccountMatcher'):'';
+				$roles = Mage::getModel('admin/roles')->getCollection();
+				$groups = Mage::helper('customer')->getGroups();
+			?>
+			<div class="page" id="attrmapping">
+				<div class="mosp_table_layout">
+					<form name="f" method="post" action="<?php echo $this->getadminurl('*/*/saveAttrMapping') ?>">
+						<input type="hidden" name="form_key" value="<?php echo Mage::getSingleton('core/session')->getFormKey(); ?>" />
+						<h3>Attribute Mapping (Optional)</h3><hr>
+						<table>
+							<tr>
+								<td colspan="2">[ <span class="btn-link" href="">Click Here</span> to know how this is useful. ]
+									<div hidden class="collapse">
+										<ol>
+											<li>Attributes are user details that are stored in your Identity Provider.</li>
+											<li>Attribute Mapping helps you to get user attributes from your IdP and map them to Magento user attributes like firstname, lastname etc.</li>
+											<li>While auto registering the users in your Magento site these attributes will automatically get mapped to your Magento user details.</li>
+										</ol>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td colspan="2"><b>NOTE: </b>Use attribute name <code>NameID</code> if Identity is in the <i>NameIdentifier</i> element of the subject statement in SAML Response.</td>
+							</tr>
+							<tr>
+							  <td style="width:200px;"><strong>Login/Create Magento account by: </strong></td>
+							  <td><select name="saml_am_account_matcher" id="saml_am_account_matcher" <?php if(!$this->isEnabled()) echo 'disabled'?>>
+								  <option value="email"<?php if($saml_am_account_matcher == 'email') echo 'selected="selected"' ; ?> >Email</option>
+								  <option value="username"<?php if($saml_am_account_matcher == 'username') echo 'selected="selected"' ; ?> >Username</option>
+								</select>
+							  </td>
+							</tr>
+							<tr>
+								<td>&nbsp;</td>
+								<td><i>Users in Magento will be searched (existing Magento users) or created (new users) based on this attribute. Use Email by default.</i></td>
+							</tr>
+							<tr>
+								<td style="width:150px;"><strong><span style="color:red;">*</span>Username(required):</strong></td>
+								<td><b>NameID</b></td>
+							</tr>
+						    <tr>
+								<td><strong><span style="color:red;">*</span>Email(required):</strong></td>
+								<td><b>NameID</b></td>
+							</tr>
+							<tr>
+								<td><strong>First Name:</strong></td>
+								<td><input type="text" name="saml_am_first_name" placeholder="Enter attribute name for First Name"  value="<?php echo $saml_am_first_name;?>" <?php if(!$this->isEnabled()) echo 'disabled'?>/></td>
+							</tr>
+							<tr>
+								<td><strong>Last Name:</strong></td>
+								<td><input type="text" name="saml_am_last_name" placeholder="Enter attribute name for Last Name"  value="<?php echo $saml_am_last_name;?>" <?php if(!$this->isEnabled()) echo 'disabled'?>/></td>
+							</tr>
+							<tr>
+								<td><strong><span style="color:red;">*</span>Group/Role:</strong></td>
+								<td><input type="text" name="saml_am_group_name" placeholder="Enter attribute name for Group/Role"  value=""disabled/></td>
+							</tr>
+							<tr>
+								<td>&nbsp;</td>
+								<td><br /><input type="submit" style="width:100px;" name="submit" value="Save" class="button button-primary button-large" <?php if(!$this->isEnabled()) echo 'disabled'?>/>
+								</td>
+							</tr>
+						</table>
+						<b><span style="color:red;">*</span>Customized Attribute Mapping is configurable in the <span class="premium btn-link">premium</span> version of the plugin.</b>
+								<br><br>
+					</form>
+					<h3>Role Mapping (Optional)</h3><hr/>
+					<form name="f" method="post" action="<?php echo $this->getadminurl('*/*/saveRoleMapping') ?>">
+						<input type="hidden" name="form_key" value="<?php echo Mage::getSingleton('core/session')->getFormKey(); ?>" />	
+						<table>
+							 <tr>
+								<td colspan="2">[ <span class="btn-link" href="">Click Here</span> to know how this is useful. ]
+									<div hidden class="collapse">
+										<ol>
+											<li>Magento uses a concept of Roles, designed to give the site owner the ability to control what users can and cannot do within the site.</li>
+											<li>Role mapping helps you to assign specific roles to users of a certain group in your IdP.</li>
+											<li>While auto registering, the users are assigned roles based on the group they are mapped to.</li>
+										</ol>
+									</div>
+								</td>
+							  </tr>
+							<tr><td colspan="2"><b>NOTE: </b>Role will be assigned only to non-admin users (user that do NOT have Administrator privileges). You will have to manually change the role of Administrator users.</td></tr>
+							<tr><td colspan="2"><input type="checkbox" id="dont_allow_unlisted_user_role" name="saml_am_dont_allow_unlisted_user_role" value="" disabled />&nbsp;&nbsp;<span style="color:red;">*</span>Do not assign role to unlisted users.</td></tr>
+							<tr>
+								<td><strong>Default Role:</strong></td>
+								<td>
+									<?php 
+										$disabled = '';
+										if(!$this->isEnabled())
+											$disabled = 'disabled';
+									?>
+										<select id="saml_am_default_role" name="saml_am_default_role" <?php echo $disabled ?> style="width:150px;" >
+									 <?php 
+										$default_role = !is_null($this->getConfig('defaultRole'))?$this->getConfig('defaultRole'):'';
+										if(empty($default_role))
+											$default_role = 'General';
+										foreach($roles as $role):
+											$selected = $default_role==$role->getRoleName()? 'selected' : '';
+											echo '<option'.$disabled.' id="mo2f_roles" '. $selected .' name="'.$role->getRoleName().'" value="'.$role->getRoleName().'"/>'.$role->getRoleName().'</option>';
+										endforeach;
+										foreach($groups as $group):
+											$selected = $default_role==$group->getCustomerGroupCode()? 'selected' : '';
+											echo '<option'.$disabled.' id="mo2f_roles" '. $selected .' name="'.$group->getCustomerGroupCode().'" value="'.$group->getCustomerGroupCode().'"/>'.$group->getCustomerGroupCode().'</option>';
+										endforeach; 
+									?> 
+										</select>
+									&nbsp;&nbsp;&nbsp;&nbsp;<i>Select the default role to assign to new Users.</i>
+								</td>
+							</tr>
+							<?php
+								foreach ($roles as $role) {
+									$role_value = $role->getRoleId();
+									$role_name = $role->getRoleName();
+									echo '<tr><td><span style="color:red;">*</span><b>' . $role_name .'</b></td><td><input type="text" name="saml_am_admin_attr_values_' . $role_value . '" value="" placeholder="Semi-colon(;) separated Group/Role value for ' . $role_name . '" style="width: 400px;" disabled /></td></tr>';
+								}
+								foreach ($groups as $group) {
+									$role_value = $group->getCustomerGroupId();
+									$role_name = $group->getCustomerGroupCode();
+									echo '<tr><td><span style="color:red;">*</span><b>' . $role_name .'</b></td><td><input type="text" name="saml_am_group_attr_values_' . $role_value . '" value="" placeholder="Semi-colon(;) separated Group/Role value for ' . $role_name . '" style="width: 400px;" disabled /></td></tr>';
+								}
+							?>
+
+							<tr>
+								<td>&nbsp;</td>
+								<td><br /><input type="submit" style="width:100px;" name="submit" value="Save" class="button button-primary button-large" <?php if(!$this->isEnabled()) echo 'disabled'?>/> &nbsp; 
+								</td>
+							</tr>
+						</table>
+						<b><span style="color:red;">*</span>Customized Role Mapping options are configurable in the <span class="premium btn-link">premium</span> version of the plugin.</b>
+						<br><br>
+					</form>
+				</div>
+			</div>
+				
+			<!--Pricing Tab-->
+			<div class="page" id="pricing">
+				<input type="submit" name="submit" value="OK, Got It" style="float:right;margin-right:2%" class="button button-primary button-large" onclick="jQuery('#identity-provider > a').click();">
+				<h3>LICENSING PLANS</h3><br>
+				<hr>				
+				<table class="mo_samlsp_pricing_table">
+					<tbody><tr>
+						<td>
+							<div class="mo_samlsp_thumbnail mo_samlsp_pricing_free_tab">
+								<div style="height:16%;">
+									<h2 class="mo_samlsp_pricing_header">Free - Forever</h2>
+									<h3>[ You are automatically on this plan ]</h3>
+								</div>
+								<hr>
+								<div style="height:8%;padding:2% 0;">
+									<p class="mo_samlsp_pricing_text">$0</p>
+								</div>
+								<hr>
+								<div style="height:62%;padding:2% 0;">
+									<p class="mo_samlsp_pricing_text">
+										Unlimited Authentications via IDP<br>
+										Basic Role Mapping<br>
+										Basic Attribute Mapping<br>
+										Option to Add IDP Login Link<br>
+									</p>
+								</div>
+								<hr>
+								<div style="height:10%;padding:2% 0;">
+									<p class="mo_samlsp_pricing_text">Basic Support by Email</p>
+								</div>
+							</div>
+						</td>
+						<td>
+							<div class="mo_samlsp_thumbnail mo_samlsp_pricing_free_tab">
+								<div style="height:16%;">
+									<h2 class="mo_samlsp_pricing_header">Do It Yourself</h2>
+										<h3>[ Use the Contact Form on the right ]</h3>
+								</div>
+								<hr>
+								<div style="height:8%;padding:2% 0;">
+									<p class="mo_samlsp_pricing_text">
+											$149 - One Time Payment
+									</p>
+								</div>
+								<hr>
+								<div style="height:62%;padding:2% 0;">
+									<p class="mo_samlsp_pricing_text">
+										Unlimited Authentications via IDP<br>
+										Customized Role Mapping<br>
+										Customized Attribute Mapping<br>
+										Option, Shortcode to add IDP Login Link on your site<br>
+										Auto-Redirect to IDP<br>
+										Step-by-step guide to setup IDP<br>
+										SAML Single Logout<br>
+										Options to select SAML Request binding type<br>
+										Integrated Windows Authentication<br>
+									</p>
+								</div>
+								<hr>
+								<div style="height:10%;padding:2% 0;">
+									<p class="mo_samlsp_pricing_text">Basic Support by Email</p>
+								</div>
+							</div>
+						</td>	
+						<td>
+							<div class="mo_samlsp_thumbnail mo_samlsp_pricing_paid_tab">
+								<div style="height:16%;">
+									<h2 class="mo_samlsp_pricing_header">Premium</h2>
+									<h3>[ Use the Contact Form on the right ]</h3>
+								</div>
+								<hr>
+								<div style="height:8%;padding:2% 0;">
+									<p class="mo_samlsp_pricing_text">
+											$149 + One Time Setup Fees<br>
+											($45 per hour)
+									</p>
+								</div>
+								<hr>
+								<div style="height:62%;padding:2% 0;">
+									<p class="mo_samlsp_pricing_text">
+										Unlimited Authentications via IDP<br>
+										Customized Role Mapping<br>
+										Customized Attribute Mapping<br>
+										Option, Shortcode to add IDP Login Link on your site<br>
+										Auto-Redirect to IDP<br>
+										Step-by-step guide to setup IDP<br>
+										SAML Single Logout<br>
+										Options to select SAML Request binding type<br>
+										Integrated Windows Authentication<br>
+										Multiple IDP Support for Cloud Service Providers<br>
+										End to End Identity Provider Configuration**<br>
+									</p>
+								</div>
+								<hr>
+								<div style="height:10%;padding:2% 0;">
+									<p class="mo_samlsp_pricing_text">Premium Support</p>
+								</div>
+							</div>
+						</td>
+					</tr>
+					</tbody>
+				</table>
+				<div style="margin:2% 0 2% 2%;">
+					
+				</div>		
+			</div>
+			
+			<!-- HELP AND TROUBLESHOOTING TAB-->
+			<div class="page" id="helptrouble">	
+				<div class="mosp_table_layout">
+					<div><h3>Commonly Asked Questions</h3></div>	
+					<hr>
+					<ul class="mosp_faqs">
+						<span class="btn-link faq"  href=""><li id="cURLfaq1">How to enable PHP cURL extension? (Pre-requisite)</li></span>
+						<div class="collapse" id="question1">
+							<ol>
+							<li>Open php.ini.</li>
+							<li>Search for extension=php_curl.dll. Uncomment it by removing the semi-colon( ; ) in front of it.</li>
+							<li>Restart the Apache Server.</li>
+							</ol>
+							<br>For any further queries, please submit a query on right hand side in our <b>Support Section</b>.
+						</div>
+						<hr>
+						
+						<span class="btn-link faq"  href=""><li id="cURLfaq2">I am getting error - curl_setopt(): CURLOPT_FOLLOWLOCATION cannot be activated when an open_basedir is set?</li></span>
+						<div class="collapse" id="question2">
+							<ol>
+							<li>Just setsafe_mode = Off in your php.ini file (it's usually in /etc/ on the server). If that's already off, then look around for the open_basedir in the php.ini file, and change it to open_basedir = .</li>
+							</ol>
+							<br>For any further queries, please submit a query on right hand side in our <b>Support Section</b>.
+						</div>
+						<hr>
+						
+						<span class="btn-link faq"  href=""><li id="otpfaq">I did not recieve OTP. What should I do?</li></span>
+						<div class="collapse" id="question3">
+							<ol>
+							<li>The OTP is sent as an email to your email address with which you have registered with miniOrange. If you can't see the email from miniOrange in your mails, please make sure to check your SPAM folder. If you don't see an email even in SPAM folder, contact us at info@miniorange.com.</li>
+							</ol>
+							<br>For any further queries, please submit a query on right hand side in our <b>Support Section</b>.
+						</div>
+						<hr>
+						
+						<span class="btn-link faq"  href=""><li id="otpfaq">After entering OTP, I get Invalid OTP. What should I do?</li></span>
+						<div class="collapse" id="question4">
+							<ol>
+							<li>You should click on Resend OTP link to get another OTP. Now enter this OTP to validate. If it still does not work, contact us at info@miniorange.com.</li>
+							</ol>
+							<br>For any further queries, please submit a query on right hand side in our <b>Support Section</b>.
+						</div>
+						<hr>
+						
+						<span class="btn-link faq"  href=""><li id="otpfaq">I forgot the password of my miniOrange account. How can I reset it?</li></span>
+						<div class="collapse" id="question5">
+							<ol>
+							There are two cases according to the page you see -<br><br>
+							1. Login with miniOrange screen: You should click on forgot password link. You will get your new password on your email address which you have registered with miniOrange . Now you can login with the new password.<br><br>
+							2. Register with miniOrange screen: Enter your email ID and any random password in password and confirm password input box. This will redirect you to Login with miniOrange screen. Now follow first step.
+							</ol>
+							<br>For any further queries, please submit a query on right hand side in our <b>Support Section</b>.
+						</div>
+						<hr>						
+					</ul>
+				</div>
+			</div>
+		</div>
+		<!-- END of Container Page -->
+		</div>
+		<!-- END of Container -->
+			
+		<!--SUPPORT TAB-->
+		<div id="minisupport">
+		 <ul class="navbar navbar-tabs">
+			<li id="mini_support" class="always-active"><a href="#minisupport" class="mini_support">Support</a></li>
+			</ul>
+				<div class="mosp_support_layout">
+					<h3>SUPPORT</h3>
+					<hr>
+					<form name="f" method="post" action="<?php echo $this->getadminurl('*/*/supportSubmit') ?>">
+						<input type="hidden" name="form_key" value="<?php echo Mage::getSingleton('core/session')->getFormKey(); ?>" />
+						<div><b>Need any help? Just send us a query so we can help you.</b><br /><br/></div>
+						<div>
+							<table>
+								<tr><td>
+									<input type="email" class="mosp_table_textbox" id="query_email" name="query_email" value="<?php echo Mage::getSingleton('admin/session')->getUser()->getEmail() ?>" placeholder="Enter your email" required="true" />
+									</td>
+								</tr>
+								<tr><td>
+									<input type="text" class="mosp_table_textbox" name="query_phone" id="query_phone" title="Phone with country code eg. +1xxxxxxxxxx" placeholder="Phone with country code eg. +1xxxxxxxxxx" value="<?php echo $this->getConfig('phone')?>" pattern="[\+]?[0-9]{1,4}\s?[0-9]{10}"/>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<textarea id="query" name="query" style="resize:vertical;height:143px;" onkeyup="mosp_valid(this)" onblur="mosp_valid(this)" onkeypress="mosp_valid(this)" placeholder="Write your query here"></textarea>
+									</td>
+								</tr>
+							</table>
+						</div>
+						<div class="button-align">
+							<input type="submit" name="send_query" id="send_query" value="Submit Query" style="margin-bottom:3%;" class="button button-primary button-large" />
+						</div>
+					</form>
+					<br />			
+				</div>
+				<br>
+			</div>
+		</div>
+		
+		<form style="display:none;" id="loginform" action="https://auth.miniorange.com/moas/login" 
+		target="_blank" method="post">
+			<input type="email" name="username" value="<?php echo $this->getConfig('email'); ?>" />
+			<input type="text" name="redirectUrl" value="https://auth.miniorange.com/moas/initializepayment" />
+			<input type="text" name="requestOrigin" id="requestOrigin"  />
+		</form>
+		<form method="post" id="checkLicenseForm" action="<?php echo $this->getadminurl('*/*/checkUserValidation') ?>">
+			<input type="hidden" name="form_key" value="<?php echo Mage::getSingleton('core/session')->getFormKey(); ?>" />
+		</form>
+		<script src="<?php echo Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_SKIN).'adminhtml/default/default/miniorangesamlsp/js/adminSettings.js'; ?>"></script>
+		<script>
+		$m(document).ready(function() { 
+			if ($email != "") { $m('#'+$activeTab+' > a').click(); } else { $m('#account_setup > a').click(); }
+		});
+		</script>
+	</body>
+	</html>

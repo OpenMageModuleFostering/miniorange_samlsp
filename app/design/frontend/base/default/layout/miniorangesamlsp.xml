@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<layout>
+	<customer_account_login>
+        <reference name="form.additional.info">
+			<block type="MiniOrange_SamlSP/moSamlSPConfig" name="miniorange_samlsp_smosamlspconfig">
+				<action method="setTemplate" ifconfig="samlsp/showLink/customer">
+					<template>miniorangesamlsp/login.phtml</template>
+				</action>
+			</block>		  
+      </reference>
+    </customer_account_login>
+</layout>

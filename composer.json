@@ -1,0 +1,16 @@
+{
+    "name": "OpenMageModuleFostering/miniOrange_samlsp",
+    "type": "magento-module",
+    "license": "GNU-General-Public-License-(GPL)",
+    "homepage": "",
+    "description": "miniOrange SAML 2.0 Extension provides SSO to your Magento site with any SAML compliant Identity Provider.",
+    "authors": [
+    {
+        "name": "miniOrange inc.",
+        "email": "info@miniorange.com"
+    }
+],
+    "suggest": {
+        "magento-hackathon/magento-composer-installer": "*"
+    }
+}

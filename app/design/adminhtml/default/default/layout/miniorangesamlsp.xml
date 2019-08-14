@@ -1,0 +1,19 @@
+<?xml version="1.0" ?>
+<layout>
+  <miniorange_samlsp_adminhtml_index_index>
+     <reference name="content">
+        <block type="MiniOrange_SamlSP/moSamlSPConfig" name="miniorange_samlsp_smosamlspconfig" template="miniorangesamlsp/mosamlspConfig.phtml" />
+      </reference>
+   </miniorange_samlsp_adminhtml_index_index>
+   
+	<adminhtml_index_login>
+		<reference name="form.additional.info">
+			<block type="MiniOrange_SamlSP/moSamlSPConfig" name="miniorange_samlsp_smosamlspconfig">
+				<action method="setTemplate" ifconfig="samlsp/showLink/Admin">
+					<template>miniorangesamlsp/login.phtml</template>
+				</action>
+			</block>		  
+      </reference>
+    </adminhtml_index_login>
+	
+</layout>

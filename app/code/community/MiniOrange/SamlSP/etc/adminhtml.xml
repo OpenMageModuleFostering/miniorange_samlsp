@@ -1,0 +1,21 @@
+<!--Declaring the admin ACL roles-->
+	 <adminhtml>
+        <acl>        
+			<resources>            
+				<admin>                
+					<children>                    
+						<miniOrange translate="title" module="MiniOrange_SamlSP">							
+							<title>miniOrange</title>							
+							<sort_order>81</sort_order>                        
+							<children>                            
+								<configure_extension translate="title" module="MiniOrange_SamlSP">								   
+									<title>SAML Service Provider</title>								   
+									<sort_order>1</sort_order>							
+								</configure_extension>                        
+							</children>                    
+						</miniOrange>                
+					</children>            
+				</admin>        
+			</resources>		
+		</acl>
+    </adminhtml>
