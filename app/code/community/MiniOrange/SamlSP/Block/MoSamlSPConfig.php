@@ -4,7 +4,9 @@ class MiniOrange_SamlSP_Block_MoSamlSPConfig extends Mage_Core_Block_Template{
 	
 	public function isEnabled(){
 		$customer = Mage::helper('MiniOrange_SamlSP');
-		if(!empty($customer->getConfig('email')) && !empty($customer->getConfig('customerKey'))){
+		$email = $customer->getConfig('email');
+		$key = $customer->getConfig('customerKey');
+		if(!empty($email) && !empty($key)){
 			return true;
 		}else{
 			return false;

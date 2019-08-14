@@ -149,6 +149,10 @@ class MiniOrange_SamlSP_Model_Observer
 			$checkIfMatchBy = $helper->getConfig('amAccountMatcher');
 			$user_email = '';
 			$userName = '';
+
+			if(is_null($defaultRole)){
+				$defaultRole = 'General';
+			}
 			
 			if(!empty($attrs)){
 				if(!empty($firstName) && array_key_exists($firstName, $attrs))
@@ -213,8 +217,10 @@ class MiniOrange_SamlSP_Model_Observer
 			$user = Mage::getModel("customer/customer")->getCollection()->addFieldToFilter('email',$user_email)->getFirstItem();
 		}
 	
-		if(!is_null($user_id = $user->getUserId()) || !is_null($user_id = $user->getId())) {
-			
+		if(!is_null($user->getUserId()) || !is_null($user->getId())) {
+			$user_id = $user->getUserId();
+			$user_id = !is_null($user_id) ?  $user_id : $user->getId();
+
 			if( !empty($firstName) ){
 				$this->saveConfig('firstname',$firstName,$user_id,$admin);
 			}
