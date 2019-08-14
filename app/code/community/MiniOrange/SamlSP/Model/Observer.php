@@ -125,7 +125,7 @@ class MiniOrange_SamlSP_Model_Observer
 		
 		// verify the issuer and audience from saml response
 		$issuer = $datahelper->getConfig('samlIssuer');
-		$spEntityId = $sp_base_url.'samlsp/';
+		$spEntityId = $cpBlock->getIssuerUrl();
 		Utilities::validateIssuerAndAudience($samlResponse,$spEntityId, $issuer);
 		
 		$ssoemail = current(current($samlResponse->getAssertions())->getNameId());

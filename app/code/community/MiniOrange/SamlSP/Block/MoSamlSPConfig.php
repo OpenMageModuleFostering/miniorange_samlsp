@@ -55,9 +55,9 @@ class MiniOrange_SamlSP_Block_MoSamlSPConfig extends Mage_Core_Block_Template{
 	
 	public function getLogoutUrl(){
 		if(Mage::getSingleton('customer/session')->isLoggedIn())
-			return Mage::getUrl('customer/account/logout');
+			return Mage::getUrl('customer/account/logout',array('_secure'=>true));
 		else
-			return Mage::helper("adminhtml")->getUrl('adminhtml/index/logout');
+			return Mage::helper("adminhtml")->getUrl('adminhtml/index/logout',array('_secure'=>true));
 	}
 	
 	
@@ -80,12 +80,13 @@ class MiniOrange_SamlSP_Block_MoSamlSPConfig extends Mage_Core_Block_Template{
 	}
 	
 	public function getCustomerLoginUrl(){
-		return Mage::getUrl('customer/account/login');
+		return Mage::getUrl('customer/account/login',array('_secure'=>true));
 	}
 	
 	public function getBaseUrl(){
-		return Mage::getBaseUrl();
+		return Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB, true );
 	}
+	
 	
 	public function getHostURl(){
 		return  Mage::helper('MiniOrange_SamlSP')->getHostURl();
