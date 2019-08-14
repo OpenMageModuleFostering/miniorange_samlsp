@@ -6,7 +6,7 @@
     "description": "miniOrange SAML 2.0 Extension provides SSO to your Magento site with any SAML compliant Identity Provider.",
     "authors": [
     {
-        "name": "miniOrange inc.",
+        "name": "miniOrange",
         "email": "info@miniorange.com"
     }
 ],
