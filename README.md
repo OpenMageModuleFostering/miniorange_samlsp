@@ -1,3 +1,5 @@
+
+
 ## Original Package Description
 
 miniOrange SAML 2.0 Extension provides SSO to your Magento site with any SAML compliant Identity Provider.
